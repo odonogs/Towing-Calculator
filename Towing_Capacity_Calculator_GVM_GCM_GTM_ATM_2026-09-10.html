@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Towing Capacity Calculator</title>
+<style>
+*{box-sizing:border-box}body{font-family:Arial,sans-serif;margin:0;background:#f2f4f7;color:#222;padding:10px}.container{max-width:900px;margin:auto}h1{text-align:center;margin:6px 0 16px;font-size:28px}.card{background:#fff;border-radius:10px;padding:16px;margin-bottom:16px;box-shadow:0 2px 7px rgba(0,0,0,.10)}h2{margin:0 0 12px;font-size:21px}.note{background:#fff8dc;border-left:4px solid #e0b100;padding:10px;margin-bottom:14px;font-size:14px;line-height:1.45}.grid{display:grid;grid-template-columns:1fr 160px;gap:8px 12px;align-items:center}label{font-weight:500}input[type=number],input[type=text]{width:100%;padding:9px 10px;border:1px solid #aaa;border-radius:6px;font-size:16px}input[type=number]{text-align:right}.readonly{background:#f4f4f4;font-weight:bold}.row{display:grid;grid-template-columns:1fr 130px 45px;gap:8px;margin-bottom:8px;align-items:center}.remove{border:none;border-radius:6px;background:#d9534f;color:#fff;font-size:20px;cursor:pointer;height:40px}button{border:none;border-radius:7px;padding:10px 14px;font-size:16px;cursor:pointer;margin:4px 4px 4px 0}.add{background:#e7e7e7}.calculate{background:#1769aa;color:#fff;font-weight:bold;padding:13px 20px}.reset{background:#777;color:#fff}.save{background:#388e3c;color:#fff}.result{margin-top:12px;padding:14px;border-radius:8px;font-size:18px;font-weight:bold}.good{background:#dff2df;color:#176b1f}.warning{background:#fff0d5;color:#8a5600}.danger{background:#f9dddd;color:#9b1c1c}.summary{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.summaryBox{border:1px solid #ccc;border-radius:8px;padding:12px;background:#fafafa}.summaryBox strong{display:block;font-size:14px;margin-bottom:5px}.big{font-size:25px;font-weight:bold}.formula{color:#555;font-size:13px;margin-top:6px;line-height:1.35}.footer-note{font-size:12px;color:#666;line-height:1.45}.section-total{margin-top:8px;font-weight:bold;text-align:right;color:#444}.buttons{margin-top:14px}@media(max-width:600px){body{padding:8px}h1{font-size:23px}.grid{grid-template-columns:1fr 112px}.row{grid-template-columns:1fr 92px 40px}.summary{grid-template-columns:1fr}.card{padding:12px}button{font-size:15px;padding:10px}.big{font-size:23px}}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🚙 Towing Capacity Calculator</h1>
+
+<div class="card">
+<div class="note">Enter your vehicle and caravan specifications and load weights, then press <b>Calculate</b>. All weights are in kilograms (kg). The starting figures below match the supplied Newlands spreadsheet.</div>
+<h2>Towing Vehicle</h2>
+<div class="grid">
+<label for="kerb">Towing Vehicle Kerb Weight</label><input id="kerb" type="number" min="0" step="1" value="2060">
+<label for="gvm">GVM – Gross Vehicle Mass</label><input id="gvm" type="number" min="0" step="1" value="2750">
+<label for="gcm">GCM – Gross Combination Mass</label><input id="gcm" type="number" min="0" step="1" value="5750">
+<label>Maximum Load for Vehicle</label><input id="vehiclePayload" class="readonly" type="number" readonly>
+<label for="passengers">Passengers</label><input id="passengers" type="number" min="0" step="1" value="210">
+<label for="towball">Tow Ball Weight</label><input id="towball" type="number" min="0" step="1" value="200">
+</div>
+<h2 style="margin-top:20px">Vehicle Load Items</h2>
+<div id="vehicleItems"></div>
+<button class="add" type="button" onclick="addItem('vehicleItems','New item',0)">＋ Add vehicle item</button>
+<div id="vehicleLoadTotal" class="section-total">Extra vehicle items: 0 kg</div>
+<div class="summary">
+<div class="summaryBox"><strong>Current vehicle weight</strong><div id="currentVehicle" class="big">0 kg</div><div class="formula">Kerb + passengers + tow ball + vehicle load items</div></div>
+<div class="summaryBox"><strong>Available additional weight in tow vehicle</strong><div id="vehicleAvailable" class="big">0 kg</div><div class="formula">GVM − current vehicle weight</div></div>
+</div>
+<div id="vehicleResult" class="result good">Press Calculate.</div>
+</div>
+
+<div class="card">
+<h2>Caravan</h2>
+<div class="grid">
+<label for="tare">Caravan Tare Mass</label><input id="tare" type="number" min="0" step="1" value="2298">
+<label for="gtm">GTM – maximum mass carried by caravan wheels</label><input id="gtm" type="number" min="0" step="1" value="2641">
+<label for="atm">ATM – Aggregate Trailer Mass</label><input id="atm" type="number" min="0" step="1" value="2798">
+<label>Maximum Load for Caravan (spreadsheet method)</label><input id="caravanPayload" class="readonly" type="number" readonly>
+</div>
+<h2 style="margin-top:20px">Caravan Load Items</h2>
+<div id="caravanItems"></div>
+<button class="add" type="button" onclick="addItem('caravanItems','New item',0)">＋ Add caravan item</button>
+<div id="caravanLoadTotal" class="section-total">Caravan load items: 0 kg</div>
+<div class="summary">
+<div class="summaryBox"><strong>Loaded caravan GTM</strong><div id="currentCaravanGTM" class="big">0 kg</div><div class="formula">Tare + caravan items − tow ball weight</div></div>
+<div class="summaryBox"><strong>Available additional caravan weight</strong><div id="caravanAvailable" class="big">0 kg</div><div class="formula">GTM − loaded caravan GTM</div></div>
+</div>
+<div class="summary">
+<div class="summaryBox"><strong>Estimated loaded caravan ATM</strong><div id="currentCaravanATM" class="big">0 kg</div><div class="formula">Tare + caravan load items</div></div>
+<div class="summaryBox"><strong>ATM remaining</strong><div id="atmAvailable" class="big">0 kg</div><div class="formula">ATM − estimated loaded caravan ATM</div></div>
+</div>
+<div id="caravanResult" class="result good">Press Calculate.</div>
+</div>
+
+<div class="card">
+<h2>Safety Limit Checks</h2>
+<div class="summary">
+<div class="summaryBox"><strong>GVM – Tow Vehicle</strong><div id="gvmCheck" class="big">0 kg</div><div class="formula">GVM − current loaded tow vehicle</div></div>
+<div class="summaryBox"><strong>GCM – Vehicle + Caravan</strong><div id="gcmCheck" class="big">0 kg</div><div class="formula">GCM − current vehicle − caravan axle load</div></div>
+</div>
+<div class="summary">
+<div class="summaryBox"><strong>GTM – Caravan Wheels</strong><div id="gtmCheck" class="big">0 kg</div><div class="formula">GTM − loaded caravan axle mass</div></div>
+<div class="summaryBox"><strong>ATM – Total Caravan</strong><div id="atmCheck" class="big">0 kg</div><div class="formula">ATM − estimated loaded caravan ATM</div></div>
+</div>
+<div id="limitsResult" class="result good">Press Calculate.</div>
+</div>
+
+<div class="card">
+<h2>Overall Results</h2>
+<div class="summary">
+<div class="summaryBox"><strong>Tow vehicle remaining</strong><div id="overallVehicle" class="big">0 kg</div></div>
+<div class="summaryBox"><strong>Caravan remaining (GTM)</strong><div id="overallCaravan" class="big">0 kg</div></div>
+</div>
+<div class="summary">
+<div class="summaryBox"><strong>Combined remaining from spreadsheet method</strong><div id="combinedRemaining" class="big">0 kg</div><div class="formula">Vehicle remaining + caravan GTM remaining</div></div>
+<div class="summaryBox"><strong>ATM remaining</strong><div id="overallATM" class="big">0 kg</div></div>
+</div>
+<div id="overallResult" class="result good">Press Calculate to see the available loading capacity.</div>
+<div class="buttons"><button class="calculate" type="button" onclick="calculate()">🧮 Calculate</button><button class="save" type="button" onclick="saveData(true)">💾 Save figures</button><button class="reset" type="button" onclick="resetCalculator()">↺ Reset</button></div>
+<p class="footer-note"><b>Important:</b> This calculator is a planning aid only. Always confirm the actual GVM, GTM, ATM, tow-ball limit, axle limits and Gross Combination Mass (GCM) applicable to your exact tow vehicle and caravan from their compliance plates and manufacturer specifications. The calculator now checks GVM, GCM, GTM and ATM separately. Compliance-plate and manufacturer limits for your exact vehicle and caravan always take precedence.</p>
+</div>
+</div>
+<script>
+const defaults={kerb:2060,gvm:2750,gcm:5750,passengers:210,towball:200,tare:2298,gtm:2641,atm:2798,
+vehicleItems:[['Tools',20],['Chairs',30],['Dogs',10],['Trailermate',10]],
+caravanItems:[['Awning',55],['Gas',40],['Water',180],['Clothes',80],['Dishes',50],['Food',50],['Cleaning Products',10],['Bedding',5],['Mattress',15],['TV',5],['Tools',0],['Jack',0],['Ladder',0]]};
+function n(id){return Number(document.getElementById(id).value)||0}
+function fmt(v){return Math.round(v).toLocaleString()+" kg"}
+function addItem(containerId,name="",weight=0){const c=document.getElementById(containerId),r=document.createElement('div');r.className='row';const a=document.createElement('input');a.type='text';a.placeholder='Description';a.value=name;const b=document.createElement('input');b.type='number';b.min='0';b.step='1';b.value=weight;b.addEventListener('input',calculate);a.addEventListener('input',()=>saveData(false));const x=document.createElement('button');x.type='button';x.className='remove';x.textContent='×';x.title='Remove item';x.onclick=()=>{r.remove();calculate()};r.append(a,b,x);c.appendChild(r)}
+function getItems(id){let total=0,items=[];document.querySelectorAll('#'+id+' .row').forEach(r=>{const q=r.querySelectorAll('input'),name=q[0].value.trim(),weight=Number(q[1].value)||0;total+=weight;items.push({name,weight})});return{total,items}}
+function setStatus(id,value,okText,overText){const e=document.getElementById(id);e.className='result '+(value>=0?'good':'danger');e.textContent=value>=0?okText+': '+fmt(value):overText+': '+fmt(Math.abs(value))+' OVER'}
+function calculate(){const kerb=n('kerb'),gvm=n('gvm'),gcm=n('gcm'),passengers=n('passengers'),towball=n('towball'),tare=n('tare'),gtm=n('gtm'),atm=n('atm');const v=getItems('vehicleItems'),c=getItems('caravanItems');
+const vehiclePayload=gvm-kerb,currentVehicle=kerb+passengers+towball+v.total,vehicleAvailable=gvm-currentVehicle;
+const maxCaravanLoad=gtm-tare,currentCaravanGTM=tare+c.total-towball,caravanAvailable=gtm-currentCaravanGTM;
+const currentCaravanATM=tare+c.total,atmAvailable=atm-currentCaravanATM,combinedRemaining=vehicleAvailable+caravanAvailable;
+const currentCombination=currentVehicle+currentCaravanGTM,gcmAvailable=gcm-currentCombination;
+document.getElementById('vehiclePayload').value=Math.round(vehiclePayload);document.getElementById('caravanPayload').value=Math.round(maxCaravanLoad);document.getElementById('vehicleLoadTotal').textContent='Extra vehicle items: '+fmt(v.total);document.getElementById('caravanLoadTotal').textContent='Caravan load items: '+fmt(c.total);document.getElementById('currentVehicle').textContent=fmt(currentVehicle);document.getElementById('vehicleAvailable').textContent=fmt(vehicleAvailable);document.getElementById('currentCaravanGTM').textContent=fmt(currentCaravanGTM);document.getElementById('caravanAvailable').textContent=fmt(caravanAvailable);document.getElementById('currentCaravanATM').textContent=fmt(currentCaravanATM);document.getElementById('atmAvailable').textContent=fmt(atmAvailable);document.getElementById('overallVehicle').textContent=fmt(vehicleAvailable);document.getElementById('overallCaravan').textContent=fmt(caravanAvailable);document.getElementById('combinedRemaining').textContent=fmt(combinedRemaining);document.getElementById('overallATM').textContent=fmt(atmAvailable);document.getElementById('gvmCheck').textContent=fmt(vehicleAvailable);document.getElementById('gcmCheck').textContent=fmt(gcmAvailable);document.getElementById('gtmCheck').textContent=fmt(caravanAvailable);document.getElementById('atmCheck').textContent=fmt(atmAvailable);
+setStatus('vehicleResult',vehicleAvailable,'Available additional weight for tow vehicle','Tow vehicle is');setStatus('caravanResult',caravanAvailable,'Available additional caravan weight under GTM','Caravan GTM is');
+[['gvmCheck',vehicleAvailable],['gcmCheck',gcmAvailable],['gtmCheck',caravanAvailable],['atmCheck',atmAvailable]].forEach(([id,val])=>{const e=document.getElementById(id).closest('.summaryBox');e.style.borderWidth='2px';e.style.borderColor=val>=0?'#4a9b52':'#c74444';});
+const lr=document.getElementById('limitsResult');const failed=[];if(vehicleAvailable<0)failed.push('GVM');if(gcmAvailable<0)failed.push('GCM');if(caravanAvailable<0)failed.push('GTM');if(atmAvailable<0)failed.push('ATM');if(failed.length){lr.className='result danger';lr.textContent='OVER LIMIT: '+failed.join(', ')+'. Reduce load before towing.';}else{lr.className='result good';lr.textContent='All four entered limits are within capacity. Remaining: GVM '+fmt(vehicleAvailable)+', GCM '+fmt(gcmAvailable)+', GTM '+fmt(caravanAvailable)+', ATM '+fmt(atmAvailable)+'.';}
+const o=document.getElementById('overallResult');if(vehicleAvailable<0||gcmAvailable<0||caravanAvailable<0||atmAvailable<0){o.className='result danger';let p=[];if(vehicleAvailable<0)p.push('tow vehicle GVM exceeded by '+fmt(-vehicleAvailable));if(gcmAvailable<0)p.push('GCM exceeded by '+fmt(-gcmAvailable));if(caravanAvailable<0)p.push('caravan GTM exceeded by '+fmt(-caravanAvailable));if(atmAvailable<0)p.push('caravan ATM exceeded by '+fmt(-atmAvailable));o.textContent='Warning: '+p.join('; ')+'.'}else{o.className='result good';o.textContent='Spreadsheet result: '+fmt(vehicleAvailable)+' left in the tow vehicle and '+fmt(caravanAvailable)+' left in the caravan (combined '+fmt(combinedRemaining)+'). ATM check leaves '+fmt(atmAvailable)+'. GCM remaining is '+fmt(gcmAvailable)+'.'}saveData(false)}
+function saveData(show){const data={};['kerb','gvm','gcm','passengers','towball','tare','gtm','atm'].forEach(id=>data[id]=document.getElementById(id).value);data.vehicleItems=getItems('vehicleItems').items;data.caravanItems=getItems('caravanItems').items;localStorage.setItem('towingCalculatorDataV3',JSON.stringify(data));if(show)alert('Figures saved on this device.');}
+function loadData(){const s=localStorage.getItem('towingCalculatorDataV3')||localStorage.getItem('towingCalculatorDataV2');if(!s)return false;try{const d=JSON.parse(s);['kerb','gvm','gcm','passengers','towball','tare','gtm','atm'].forEach(id=>{if(d[id]!==undefined)document.getElementById(id).value=d[id]});document.getElementById('vehicleItems').innerHTML='';document.getElementById('caravanItems').innerHTML='';(d.vehicleItems||[]).forEach(i=>addItem('vehicleItems',i.name,i.weight));(d.caravanItems||[]).forEach(i=>addItem('caravanItems',i.name,i.weight));return true}catch(e){return false}}
+function loadDefaults(){['kerb','gvm','gcm','passengers','towball','tare','gtm','atm'].forEach(id=>document.getElementById(id).value=defaults[id]);document.getElementById('vehicleItems').innerHTML='';document.getElementById('caravanItems').innerHTML='';defaults.vehicleItems.forEach(i=>addItem('vehicleItems',i[0],i[1]));defaults.caravanItems.forEach(i=>addItem('caravanItems',i[0],i[1]));}
+function resetCalculator(){if(!confirm('Reset the calculator to the original spreadsheet figures?'))return;localStorage.removeItem('towingCalculatorDataV3');localStorage.removeItem('towingCalculatorDataV2');loadDefaults();calculate()}
+window.addEventListener('load',()=>{if(!loadData())loadDefaults();['kerb','gvm','gcm','passengers','towball','tare','gtm','atm'].forEach(id=>document.getElementById(id).addEventListener('input',calculate));calculate()});
+</script>
+</body>
+</html>
